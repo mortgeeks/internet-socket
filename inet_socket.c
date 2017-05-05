@@ -177,6 +177,74 @@ char* recv_line(int sockfd){
 	return NULL; // Didn't find the end-of-line characters.
 
 }
+/* This function scan the range ports from start port to end  
+* its create a socket and try to connect
+* if connection established then port open else its close
+*/
+int scan_port(char *hostname,int start,int end){
+    struct hostent *host;
+    int err, i , sock ;
+    struct sockaddr_in sa;
+ 
+    //Initialise the sockaddr_in structure
+    strncpy((char*)&sa , "" , sizeof sa);
+    sa.sin_family = AF_INET;
+     
+    //direct ip address, use it
+    if(isdigit(hostname[0]))
+    {
+        printf("Doing inet_addr...");
+        sa.sin_addr.s_addr = inet_addr(hostname);
+        printf("Done\n");
+    }
+    //Resolve hostname to ip address
+    else if( (host = gethostbyname(hostname)) != 0)
+    {
+        printf("Doing gethostbyname...");
+        strncpy((char*)&sa.sin_addr , (char*)host->h_addr , sizeof sa.sin_addr);
+        printf("Done\n");
+    }
+    else
+    {
+        herror(hostname);
+        exit(2);
+    }
+     
+    //Start the port scan loop
+    printf("Starting the portscan loop : \n");
+    for( i = start ; i <= end ; i++) 
+    {
+        //Fill in the port number
+        sa.sin_port = htons(i);
+        //Create a socket of type internet
+        sock = socket(AF_INET , SOCK_STREAM , 0);
+         
+        //Check whether socket created fine or not
+        if(sock < 0) 
+        {
+            perror("\nSocket");
+            exit(1);
+        }
+        //Connect using that socket and sockaddr structure
+        err = connect(sock , (struct sockaddr*)&sa , sizeof(struct sockaddr_in));
+         
+        //not connected
+        if( err < 0 )
+        {
+            printf("%s %-5d %s\r" , hostname , i, strerror(errno));
+            fflush(stdout);
+        }
+        //connected
+        else
+        {
+            printf("%-5d open\n",  i);
+        }
+        close(sock);    }
+     
+    printf("\r");
+    fflush(stdout);
+    return(0);
+}
 
 /*
 Vulnerable to buffer over-flow

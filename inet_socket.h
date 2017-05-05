@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <errno.h>
 
+
 int tcp_ip_socket();
 int udp_ip_socket();
 int set_sockaddr_in(struct sockaddr_in *addr,char* ip,short port);
@@ -18,5 +19,6 @@ int connect_inet(int fd,char* ip,short port);
 char* get_ip_by_name(char* name);
 int send_string(int sockfd, unsigned char *buffer);
 char* recv_line(int sockfd);
+int scan_port(char *hostname,int start,int end);
 
 #endif

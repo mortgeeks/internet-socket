@@ -4,6 +4,7 @@
 
 void main(int argc,char** argv){
 
+	scan_port("google.com",80,80);
 	int fd=tcp_ip_socket();
 	char *buffer="HEAD / HTTP/1.1\n\n",*info;
 	connect_inet(fd,get_ip_by_name("google.com"),80);
